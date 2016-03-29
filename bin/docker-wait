@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+
+require 'open3'
+
+docker, match = ARGV
+
+if docker.nil? || docker.empty? || match.nil? || match.empty?
+  abort <<~USAGE
+    #$0 docker-compose-container match-regexp
+  USAGE
+  exit!
+end
+
+Open3.popen2e('docker-compose', 'logs', '--no-color', docker) do |stdin, output, wait_thr|
+  stdin.close
+  loop do
+    line = output.readline
+    break unless line
+    puts line
+    break if line =~ /#{match}/
+  end
+  wait_thr.kill
+end
