@@ -1,7 +1,7 @@
 # coding: utf-8
 Gem::Specification.new do |spec|
   spec.name          = 'docker-wait'
-  spec.version       = '0.1.0'
+  spec.version       = '0.1.1'
   spec.authors       = ['Bachue Zhou']
   spec.email         = ['bachue.shu@gmail.com']
 

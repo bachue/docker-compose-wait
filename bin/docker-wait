@@ -11,7 +11,7 @@ if docker.nil? || docker.empty? || match.nil? || match.empty?
   exit!
 end
 
-Open3.popen2e('docker-compose', 'logs', '--no-color', docker) do |stdin, output, wait_thr|
+Open3.popen2e('docker-compose', 'logs', '-f', '--no-color', docker) do |stdin, output, wait_thr|
   stdin.close
   loop do
     line = output.readline
