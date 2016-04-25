@@ -1,0 +1,40 @@
+#!/usr/bin/env ruby
+
+require 'optparse'
+require 'open3'
+
+options = {regexp: false}
+
+optparser = OptionParser.new do |opts|
+  opts.banner = "USAGE: #$0 [--regexp] docker-compose-container pattern"
+  opts.on('--[no-]regexp') do |regexp|
+    options[:regexp] = regexp
+  end
+  opts.on_tail('--help', 'Show this message') do
+    puts opts
+    exit
+  end
+end
+optparser.parse!
+
+container, pattern = ARGV
+
+if container.nil? || container.empty? || pattern.nil? || pattern.empty?
+  STDERR.puts(optparser)
+  exit!
+end
+
+Open3.popen2e('docker-compose', 'logs', '-f', container) do |stdin, output, wait_thr|
+  stdin.close
+  loop do
+    line = output.readline
+    break unless line
+    puts line
+    if options[:regexp]
+      break if line =~ /#{pattern}/
+    else
+      break if line.include?(pattern)
+    end
+  end
+  wait_thr.kill
+end
