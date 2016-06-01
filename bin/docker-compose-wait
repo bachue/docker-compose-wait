@@ -6,7 +6,10 @@ require 'open3'
 options = {regexp: false}
 
 optparser = OptionParser.new do |opts|
-  opts.banner = "USAGE: #$0 [--regexp] docker-compose-container pattern"
+  opts.banner = "USAGE: #$0 [--file FILE] [--regexp] docker-compose-container pattern"
+  opts.on('-f FILEPATH', '--file FILEPATH', 'Specify an alternate compose file') do |file|
+    options[:file] = file
+  end
   opts.on('--[no-]regexp') do |regexp|
     options[:regexp] = regexp
   end
@@ -24,7 +27,10 @@ if container.nil? || container.empty? || pattern.nil? || pattern.empty?
   exit!
 end
 
-Open3.popen2e('docker-compose', 'logs', '-f', container) do |stdin, output, wait_thr|
+opts = []
+opts.concat(['-f', options[:file]]) if options[:file]
+
+Open3.popen2e('docker-compose', *opts, 'logs', '-f', container) do |stdin, output, wait_thr|
   stdin.close
   loop do
     line = output.readline
